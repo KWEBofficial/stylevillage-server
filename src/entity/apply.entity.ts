@@ -9,10 +9,14 @@ export default class Apply extends BaseTime {
   @PrimaryGeneratedColumn()
   id?: number;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, {
+    cascade: ['insert', 'recover', 'update'],
+  })
   user!: User;
 
-  @ManyToOne(() => Clothes)
+  @ManyToOne(() => Clothes, {
+    cascade: ['insert', 'recover', 'update'],
+  })
   clothes!: Clothes;
 
   @Column({
