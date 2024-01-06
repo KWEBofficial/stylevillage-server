@@ -2,6 +2,7 @@ import { RequestHandler } from 'express';
 import UserService from '../../service/user.service';
 // import CreateUserInput from '../../type/user/create.input';
 import { BadRequestError } from '../../util/customErrors';
+import bcrypt from 'bcrypt';
 
 // 예시 controller입니다. 필요에 따라 수정하거나 삭제하셔도 됩니다.
 
@@ -40,4 +41,37 @@ export const getUserById: RequestHandler = async (req, res, next) => {
   //   } catch (error) {
   //     next(error);
   //   }
+};
+
+
+export const updateProfile: RequestHandler = async (req, res, next) => {
+  try {
+    const { id } = req.query;
+    const { password, nickname, gender, location, phoneNumber } = req.body;
+
+    if (!id || !password || !nickname || !gender || !location || !phoneNumber) {
+      throw new BadRequestError('All fields are required.');
+    }
+
+    const user = await UserService.getUserById(Number(id));
+    if (!user) {
+      throw new BadRequestError('User not found.');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new BadRequestError('Invalid password.');
+    }
+
+    user.nickname = nickname;
+    user.gender = gender;
+    user.location = location;
+    user.phoneNumber = phoneNumber;
+
+    await UserService.updateUserProfile(user);
+
+    res.json({ isSuccess: true });
+  } catch (error) {
+    next(error);
+  }
 };

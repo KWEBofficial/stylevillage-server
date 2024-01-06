@@ -13,6 +13,14 @@ export default class UserService {
     }
   }
 
+
+  static async updateUserProfile(user: User): Promise<void> {
+    try {
+      await UserRepository.save(user);
+    } catch (error) {
+      throw new InternalServerError('프로필 업데이트에 실패했습니다.');
+    }
+  }
   // static async getUsersByAge(age: number): Promise<User[]> {
   //   try {
   //     return await UserRepository.find({ where: { age } });
