@@ -6,6 +6,7 @@ import ClothesRepository from '../../repository/clothes.repository';
 import { RequestHandler } from 'express';
 import lendapplyReq from '../../type/lend/lendapply.req';
 import { BadRequestError } from '../../util/customErrors';
+import DefaultRes from '../../type/default.res';
 
 export const applyLend: RequestHandler = async (req, res, next) => {
   try {
@@ -18,10 +19,10 @@ export const applyLend: RequestHandler = async (req, res, next) => {
       throw new BadRequestError('User not found.');
     }
 
-    const loanee = (await ClothesRepository.findOneByClothesId(clothes)).closet
+    const lender = (await ClothesRepository.findOneByClothesId(clothes)).closet
       .owner;
 
-    if (!loanee) {
+    if (!lender) {
       throw new BadRequestError('Loanee not found.');
     }
 
@@ -30,14 +31,18 @@ export const applyLend: RequestHandler = async (req, res, next) => {
       price,
       startDate: new Date(start_date),
       endDate: new Date(end_date),
-      lender: foundUser,
-      loanee,
+      loanee: foundUser,
+      lender,
       review: '',
     };
 
     await LendService.createApply(applyInfo);
 
-    res.json({ isSuccess: true });
+    const message: DefaultRes = {
+      message: 'Apply created successful',
+    };
+
+    res.json(message);
   } catch (error) {
     next(error);
   }

@@ -8,5 +8,5 @@ export default interface lendapplyReq {
   endDate?: Date;
   lender: User;
   loanee: User;
-  review: string;
+  review?: string;
 }
