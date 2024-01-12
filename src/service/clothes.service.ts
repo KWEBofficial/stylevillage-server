@@ -10,6 +10,8 @@ import { BadRequestError, ForbiddenError } from '../util/customErrors';
 import UserRepository from '../repository/user.repository';
 import Category from '../common/enum/category.enum';
 import Season from '../common/enum/season.enum';
+import LendRepository from '../repository/lend.repository';
+import reviewRes from '../type/lend/review.res';
 
 export default class ClothesService {
   static async createClothes(
@@ -63,10 +65,26 @@ export default class ClothesService {
     const { clothesId } = id;
     const clothes = await ClothesRepository.findOneByClothesId(clothesId);
 
-    if (clothes.isOpen || (userId && userId === clothes.owner.id)) {
-      const getClothesRes: GetClothesRes = clothes;
-      return getClothesRes;
-    } else throw new ForbiddenError('공개되지 않은 옷입니다.');
+    if (!(clothes.isOpen || (userId && userId === clothes.owner.id)))
+      throw new ForbiddenError('공개되지 않은 옷입니다.');
+
+    const review: reviewRes[] =
+      await LendRepository.getReviewByClothesId(clothesId);
+    const getClothesRes: GetClothesRes = {
+      id: clothes.id,
+      closet: clothes.closet,
+      category: clothes.category,
+      season: clothes.season,
+      status: clothes.status,
+      isOpen: clothes.isOpen,
+      name: clothes.name,
+      tag: clothes.tag,
+      image: clothes.image,
+      owner: clothes.owner,
+      review: review,
+    };
+
+    return getClothesRes;
   }
 
   static async deleteClothes(

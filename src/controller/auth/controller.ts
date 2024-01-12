@@ -19,7 +19,7 @@ export const register: RequestHandler = async (req, res, next) => {
       !location ||
       !phoneNumber
     ) {
-      throw new BadRequestError('All fields are required.');
+      throw new BadRequestError('모든 항목을 입력해야 합니다.');
     }
 
     const user: RegisterReq = {
@@ -44,7 +44,7 @@ export const login: RequestHandler = async (req, res, next) => {
   try {
     const { username, password } = req.body;
     if (!username || !password) {
-      throw new BadRequestError('All fields are required.');
+      throw new BadRequestError('모든 항목을 입력해야 합니다.');
     }
 
     const loginInfo: LoginReq = { username, password };

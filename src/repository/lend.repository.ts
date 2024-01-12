@@ -2,6 +2,7 @@ import AppDataSource from '../config/dataSource';
 import Lend from '../entity/lend.entity';
 import User from '../entity/user.entity';
 import { BadRequestError } from '../util/customErrors';
+import ReviewRes from '../type/lend/review.res';
 
 const LendRepository = AppDataSource.getRepository(Lend).extend({
   async findLoaneeById(id: number): Promise<User> {
@@ -42,6 +43,29 @@ const LendRepository = AppDataSource.getRepository(Lend).extend({
       if (!lend) throw new BadRequestError('존재하지 않는 대여 내역입니다.');
       return lend;
     });
+  },
+
+  async findByClothesId(clothesId: number): Promise<Lend[]> {
+    return this.find({
+      where: { clothes: { id: clothesId } },
+    });
+  },
+
+  async getReviewByClothesId(clothesId: number): Promise<ReviewRes[]> {
+    const lends = await this.findByClothesId(clothesId);
+    const reviewsPromises = lends.map(async (lend: Lend) => {
+      if (!lend || !lend.review || !lend.id) return undefined;
+      else {
+        const review: ReviewRes = {
+          review: lend.review,
+          reviewer: lend.loanee,
+        };
+        return review;
+      }
+    });
+    const reviews = await Promise.all(reviewsPromises);
+
+    return reviews.filter((review) => review !== undefined) as ReviewRes[];
   },
 });
 
