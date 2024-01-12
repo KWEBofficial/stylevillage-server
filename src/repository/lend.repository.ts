@@ -16,20 +16,20 @@ const LendRepository = AppDataSource.getRepository(Lend).extend({
 
   async findByLenderId(lender: number): Promise<Lend[]> {
     return this.createQueryBuilder('lend')
-      .leftJoinAndSelect('lend.lender', 'lender')
-      .leftJoinAndSelect('lend.loanee', 'loanee')
+      .leftJoin('lend.lender', 'lender')
+      .leftJoin('lend.loanee', 'loanee')
       .where({ lender })
-      .select(getLendsResFields)
+      .addSelect(getLendsResFields)
       .orderBy('lend.createdAt', 'DESC')
       .getMany();
   },
 
   async findByLoaneeId(loanee: number): Promise<Lend[]> {
     return this.createQueryBuilder('lend')
-      .leftJoinAndSelect('lend.lender', 'lender')
-      .leftJoinAndSelect('lend.loanee', 'loanee')
+      .leftJoin('lend.lender', 'lender')
+      .leftJoin('lend.loanee', 'loanee')
       .where({ loanee })
-      .select(getLendsResFields)
+      .addSelect(getLendsResFields)
       .orderBy('lend.createdAt', 'DESC')
       .getMany();
   },
@@ -46,12 +46,6 @@ const LendRepository = AppDataSource.getRepository(Lend).extend({
 });
 
 const getLendsResFields = [
-  'lend.id',
-  'lend.clothes',
-  'lend.price',
-  'lend.startDate',
-  'lend.endDate',
-  'lend.review',
   'lender.id',
   'lender.username',
   'lender.nickname',
