@@ -5,6 +5,7 @@ import ClothesRepository from '../repository/clothes.repository';
 import UserRepository from '../repository/user.repository';
 import WishRepository from '../repository/wish.repository';
 import { BadRequestError } from '../util/customErrors';
+import GetWishListRes from '../type/wish/getWishList.res';
 
 export default class WishService {
   static async createWish(
@@ -47,5 +48,16 @@ export default class WishService {
     if (!wish)
       throw new BadRequestError('해당 옷에 대한 찜 정보를 찾을 수 없습니다.');
     return await WishRepository.update({ id: wish.id }, { isWished: false });
+  }
+
+  static async getWishList(userId: number): Promise<GetWishListRes> {
+    const wishesInfo = await WishRepository.findWishesByUser(userId);
+    const wishListPromises = wishesInfo.map(async (wish) => {
+      if (!wish.clothes)
+        throw new BadRequestError('찜 목록에 존재하지 않는 옷이 있습니다');
+      return wish.clothes;
+    });
+    const wishList = await Promise.all(wishListPromises);
+    return { wishList };
   }
 }

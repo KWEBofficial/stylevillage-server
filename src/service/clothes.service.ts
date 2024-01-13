@@ -12,6 +12,7 @@ import Category from '../common/enum/category.enum';
 import Season from '../common/enum/season.enum';
 import LendRepository from '../repository/lend.repository';
 import reviewRes from '../type/lend/review.res';
+import WishRepository from '../repository/wish.repository';
 
 export default class ClothesService {
   static async createClothes(
@@ -20,6 +21,7 @@ export default class ClothesService {
   ): Promise<Clothes> {
     //Todo. image 유효성 검사
     const userInfo = (await UserRepository.findOneByUserId(userId)) as User;
+
     const clothes: Clothes = {
       closet: clothesInfo.closet,
       category: clothesInfo.category,
@@ -70,6 +72,15 @@ export default class ClothesService {
 
     const review: reviewRes[] =
       await LendRepository.getReviewByClothesId(clothesId);
+
+    let isWished = false;
+
+    if (userId) {
+      const wish = await WishRepository.findWishByData(userId, clothesId, true);
+      if (wish) {
+        isWished = true;
+      }
+    }
     const getClothesRes: GetClothesRes = {
       id: clothes.id,
       closet: clothes.closet,
@@ -82,6 +93,7 @@ export default class ClothesService {
       image: clothes.image,
       owner: clothes.owner,
       review: review,
+      isWished: isWished,
     };
 
     return getClothesRes;

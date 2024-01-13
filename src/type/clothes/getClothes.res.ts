@@ -17,4 +17,5 @@ export default interface GetClothesRes {
   image?: string;
   owner: UserRes;
   review: ReviewRes[];
+  isWished: boolean;
 }
