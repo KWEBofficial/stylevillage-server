@@ -23,17 +23,17 @@ export const createClothes: RequestHandler = async (req, res, next) => {
     }
 
     if (!name) {
-      throw new BadRequestError('name are essential');
+      throw new BadRequestError('이름을 입력해주세요.');
     }
 
     if (category && !isInEnum(category, Category)) {
-      throw new BadRequestError(`${category} is not in Category`);
+      throw new BadRequestError(`${category} 항목이 카테고리에 없습니다.`);
     }
     if (season && !isInEnum(season, Season)) {
-      throw new BadRequestError(`${season} is not in Season`);
+      throw new BadRequestError(`${season} 항목이 계절 카테고리에 없습니다.`);
     }
     if (status && !isInEnum(status, Status)) {
-      throw new BadRequestError(`${status} is not in Status`);
+      throw new BadRequestError(`${status} 항목이 상태 카테고리에 없습니다.`);
     }
 
     const clothesInfo: CreateClothesReq = {
@@ -52,7 +52,7 @@ export const createClothes: RequestHandler = async (req, res, next) => {
     const message: DefaultRes = { message: '옷 정보가 등록되었습니다.' };
     res.json(message);
   } catch (error) {
-    console.log('error in createClothes :', error);
+    console.log('옷 등록에서 다음과 같은 에러가 발생하였습니다:', error);
     next(error);
   }
 };
@@ -61,7 +61,8 @@ export const getClothes: RequestHandler = async (req, res, next) => {
   try {
     const clothesId = Number(req.params.clothesId);
 
-    if (!clothesId) throw new BadRequestError('ClothesId is required.');
+    if (!clothesId)
+      throw new BadRequestError('잘못된 옷에 대한 접근입니다.');
 
     const ClothesId: GetClothesReq = { clothesId };
     const user = req.user as LoginUser;
@@ -102,13 +103,13 @@ export const modifyClothes: RequestHandler = async (req, res, next) => {
     }
 
     if (category && !isInEnum(category, Category)) {
-      throw new BadRequestError(`${category} is not in Category`);
+      throw new BadRequestError(`${category} 항목이 카테고리에 없습니다.`);
     }
     if (season && !isInEnum(season, Season)) {
-      throw new BadRequestError(`${season} is not in Season`);
+      throw new BadRequestError(`${season} 항목이 계절 카테고리에 없습니다.`);
     }
     if (status && !isInEnum(status, Status)) {
-      throw new BadRequestError(`${status} is not in Status`);
+      throw new BadRequestError(`${status} 항목이 상태 카테고리에 없습니다.`);
     }
 
     const clothesId: number = id;

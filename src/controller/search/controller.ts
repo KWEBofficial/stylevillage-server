@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express';
 import { BadRequestError } from '../../util/customErrors';
 import ClothesService from '../../service/clothes.service';
-import GetClothesRes from '../../type/clothes/getClothes.res';
+import SearchClothesRes from '../../type/clothes/searchClothes.res';
 import isInEnum from '../../util/isInEnum';
 import Category from '../../common/enum/category.enum';
 import Season from '../../common/enum/season.enum';
@@ -46,11 +46,12 @@ export const searchClothes: RequestHandler = async (req, res, next) => {
       throw new BadRequestError(`계절 항목이 유효하지 않습니다`);
     }
 
-    const searchResults: GetClothesRes[] = await ClothesService.searchClothes(
-      categoriesArray as Category[],
-      seasonsArray as Season[],
-      textString,
-    );
+    const searchResults: SearchClothesRes[] =
+      await ClothesService.searchClothes(
+        categoriesArray as Category[],
+        seasonsArray as Season[],
+        textString,
+      );
 
     res.json(searchResults);
   } catch (error) {
