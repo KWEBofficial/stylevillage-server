@@ -83,14 +83,14 @@ export default class ClothesService {
   }
 
   static async searchClothes(
-    categories?: Category[],
-    seasons?: Season[],
-    name?: string,
+    categories: Category[],
+    seasons: Season[],
+    text: string,
   ): Promise<Clothes[]> {
     return await ClothesRepository.findByCategorySeasonName(
       categories,
       seasons,
-      name,
+      text,
     );
   }
 }
