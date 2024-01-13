@@ -6,14 +6,13 @@ import LoginUser from '../../type/user/loginUser';
 import UserRepository from '../../repository/user.repository';
 
 // 예시 controller입니다. 필요에 따라 수정하거나 삭제하셔도 됩니다.
-
 export const getUserById: RequestHandler = async (req, res, next) => {
   try {
     const id = Number(req.query.id);
-
-    const user = await UserService.getUserById(id);
+    const user = id
+      ? await UserService.getUserById(id)
+      : (req.user as LoginUser);
     if (!user) throw new BadRequestError('해당하는 유저가 없습니다.');
-
     res.json(user);
   } catch (error) {
     next(error);
