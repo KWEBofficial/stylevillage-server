@@ -61,8 +61,7 @@ export const getClothes: RequestHandler = async (req, res, next) => {
   try {
     const clothesId = Number(req.params.clothesId);
 
-    if (!clothesId)
-      throw new BadRequestError('잘못된 옷에 대한 접근입니다.');
+    if (!clothesId) throw new BadRequestError('잘못된 옷에 대한 접근입니다.');
 
     const ClothesId: GetClothesReq = { clothesId };
     const user = req.user as LoginUser;

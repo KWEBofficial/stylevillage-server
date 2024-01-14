@@ -14,7 +14,7 @@ export const createApply: RequestHandler = async (req, res, next) => {
     const foundUser = await UserRepository.findOneByUsername(user.username);
 
     if (!foundUser) {
-      throw new BadRequestError('User not found.');
+      throw new BadRequestError('사용자를 찾을 수 없습니다.');
     }
 
     const applyInfo: createApplyReq = {
@@ -28,7 +28,7 @@ export const createApply: RequestHandler = async (req, res, next) => {
     await ApplyService.createApply(applyInfo);
 
     const message: DefaultRes = {
-      message: 'Apply created successful',
+      message: '대여가 신청되었습니다.',
     };
 
     res.json(message);
