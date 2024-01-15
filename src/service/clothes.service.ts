@@ -10,9 +10,11 @@ import { BadRequestError, ForbiddenError } from '../util/customErrors';
 import UserRepository from '../repository/user.repository';
 import Category from '../common/enum/category.enum';
 import Season from '../common/enum/season.enum';
+import Status from '../common/enum/season.enum';
 import LendRepository from '../repository/lend.repository';
 import reviewRes from '../type/lend/review.res';
 import WishRepository from '../repository/wish.repository';
+import SearchClothesRes from '../type/clothes/searchClothes.res';
 
 export default class ClothesService {
   static async createClothes(
@@ -115,11 +117,13 @@ export default class ClothesService {
   static async searchClothes(
     categories: Category[],
     seasons: Season[],
+    filter: Status[],
     text: string,
-  ): Promise<Clothes[]> {
+  ): Promise<SearchClothesRes[]> {
     return await ClothesRepository.findByCategorySeasonName(
       categories,
       seasons,
+      filter,
       text,
     );
   }
