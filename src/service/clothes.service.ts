@@ -8,6 +8,8 @@ import GetClothesReq from '../type/clothes/getClothes.req';
 import GetClothesRes from '../type/clothes/getClothes.res';
 import { BadRequestError, ForbiddenError } from '../util/customErrors';
 import UserRepository from '../repository/user.repository';
+import Category from '../common/enum/category.enum';
+import Season from '../common/enum/season.enum';
 import LendRepository from '../repository/lend.repository';
 import reviewRes from '../type/lend/review.res';
 import WishRepository from '../repository/wish.repository';
@@ -108,5 +110,17 @@ export default class ClothesService {
     }
 
     return await ClothesRepository.softDelete(clothesId);
+  }
+
+  static async searchClothes(
+    categories: Category[],
+    seasons: Season[],
+    text: string,
+  ): Promise<Clothes[]> {
+    return await ClothesRepository.findByCategorySeasonName(
+      categories,
+      seasons,
+      text,
+    );
   }
 }
