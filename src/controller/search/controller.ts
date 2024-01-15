@@ -9,7 +9,12 @@ import Status from '../../common/enum/season.enum';
 
 export const searchClothes: RequestHandler = async (req, res, next) => {
   try {
-    const { categories, seasons, filters, keyword: text } = req.query;
+    const {
+      category: categories,
+      season: seasons,
+      filter: filters,
+      keyword: text,
+    } = req.query;
 
     const categoriesArray = Array.isArray(categories)
       ? categories
@@ -26,6 +31,7 @@ export const searchClothes: RequestHandler = async (req, res, next) => {
     if (
       categoriesArray.length === 0 &&
       seasonsArray.length === 0 &&
+      filtersArray.length === 0 &&
       textString.length === 0
     ) {
       throw new BadRequestError('검색 정보를 입력해주세요');
