@@ -9,7 +9,7 @@ import Status from '../../common/enum/season.enum';
 
 export const searchClothes: RequestHandler = async (req, res, next) => {
   try {
-    const { categories, seasons, filters, text } = req.query;
+    const { categories, seasons, filters, keyword: text } = req.query;
 
     const categoriesArray = Array.isArray(categories)
       ? categories
