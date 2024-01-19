@@ -1,0 +1,247 @@
+import { RequestHandler } from 'express';
+import GetClothesReq from '../../type/clothes/getClothes.req';
+import GetClothesRes from '../../type/clothes/getClothes.res';
+import { BadRequestError, UnauthorizedError } from '../../util/customErrors';
+import ClothesService from '../../service/clothes.service';
+import CreateClothesReq from '../../type/clothes/createClothes.req';
+import LoginUser from '../../type/user/loginUser';
+import Category from '../../common/enum/category.enum';
+import Season from '../../common/enum/season.enum';
+import Status from '../../common/enum/status.enum';
+import ModifyClothesReq from '../../type/clothes/modifyClothes.req';
+import isInEnum from '../../util/isInEnum';
+import DefaultRes from '../../type/default.res';
+import SearchClothesReq from '../../type/clothes/searchClothes.req';
+import queryValueToArray from '../../util/queryValueToArray';
+
+export const createClothes: RequestHandler = async (req, res, next) => {
+  try {
+    const {
+      closet,
+      description,
+      category,
+      season,
+      status,
+      isOpen,
+      name,
+      tag,
+      image,
+    } = req.body;
+    const user = req.user as LoginUser;
+
+    if (!user) {
+      throw new UnauthorizedError('로그인이 필요한 기능입니다.');
+    }
+
+    if (!name) {
+      throw new BadRequestError('이름을 입력해주세요.');
+    }
+
+    if (category && !isInEnum(category, Category)) {
+      throw new BadRequestError(`${category} 항목이 카테고리에 없습니다.`);
+    }
+    if (season && !isInEnum(season, Season)) {
+      throw new BadRequestError(`${season} 항목이 계절 카테고리에 없습니다.`);
+    }
+    if (status && !isInEnum(status, Status)) {
+      throw new BadRequestError(`${status} 항목이 상태 카테고리에 없습니다.`);
+    }
+
+    const clothesInfo: CreateClothesReq = {
+      closet,
+      description,
+      category,
+      season,
+      status,
+      isOpen,
+      name,
+      tag,
+      image,
+    };
+
+    await ClothesService.createClothes(clothesInfo, user.id);
+
+    const message: DefaultRes = { message: '옷 정보가 등록되었습니다.' };
+    res.json(message);
+  } catch (error) {
+    console.log('옷 등록에서 다음과 같은 에러가 발생하였습니다:', error);
+    next(error);
+  }
+};
+
+export const getClothes: RequestHandler = async (req, res, next) => {
+  try {
+    const clothesId = Number(req.params.clothesId);
+
+    if (!clothesId) throw new BadRequestError('잘못된 옷에 대한 접근입니다.');
+
+    const ClothesId: GetClothesReq = { clothesId };
+    const user = req.user as LoginUser;
+
+    const getClothesRes: GetClothesRes = await ClothesService.getClothes(
+      ClothesId,
+      req.user ? user.id : null,
+    );
+
+    res.json(getClothesRes);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const modifyClothes: RequestHandler = async (req, res, next) => {
+  try {
+    const id = Number(req.params.clothesId);
+    const {
+      closet,
+      description,
+      category,
+      season,
+      status,
+      isOpen,
+      name,
+      tag,
+      image,
+    } = req.body;
+    const user = req.user as LoginUser;
+
+    if (!user) {
+      throw new UnauthorizedError('로그인이 필요한 기능입니다.');
+    }
+
+    if (
+      !closet &&
+      !category &&
+      !season &&
+      !status &&
+      !isOpen &&
+      !name &&
+      !tag &&
+      !image
+    ) {
+      throw new BadRequestError('수정할 항목을 입력해주세요.');
+    }
+
+    if (category && !isInEnum(category, Category)) {
+      throw new BadRequestError(`${category} 항목이 카테고리에 없습니다.`);
+    }
+    if (season && !isInEnum(season, Season)) {
+      throw new BadRequestError(`${season} 항목이 계절 카테고리에 없습니다.`);
+    }
+    if (status && !isInEnum(status, Status)) {
+      throw new BadRequestError(`${status} 항목이 상태 카테고리에 없습니다.`);
+    }
+
+    const clothesId: number = id;
+    const modifyClothesReq: ModifyClothesReq = {
+      closet,
+      category,
+      description,
+      season,
+      status,
+      isOpen,
+      name,
+      tag,
+      image,
+    };
+
+    await ClothesService.modifyClothes(user.id, clothesId, modifyClothesReq);
+
+    const message: DefaultRes = { message: '옷 정보가 수정되었습니다.' };
+    res.json(message);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteClothes: RequestHandler = async (req, res, next) => {
+  try {
+    const clothesId = Number(req.params.clothesId);
+    const user = req.user as LoginUser;
+
+    if (!user) throw new UnauthorizedError('로그인이 필요한 기능입니다.');
+
+    await ClothesService.deleteClothes(clothesId, user.id);
+
+    const message: DefaultRes = {
+      message: '옷이 삭제되었습니다.',
+    };
+    res.json(message);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getPopularClothes: RequestHandler = async (req, res, next) => {
+  try {
+    const count = Number(req.params.count);
+    const user = req.user as LoginUser;
+
+    const clothes = await ClothesService.getPopularClothes(
+      count,
+      user ? user.id : null,
+    );
+
+    res.json(clothes);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const searchClothes: RequestHandler = async (req, res, next) => {
+  try {
+    const user = req.user as LoginUser;
+
+    const untestedText = req.query.text;
+    if (untestedText && typeof untestedText != 'string') {
+      throw new BadRequestError('text 항목이 string 타입이 아닙니다.');
+    }
+    const text =
+      typeof untestedText == 'string' ? untestedText.trim() : undefined;
+    const category = queryValueToArray(req.query.category as string | string[]);
+    const status = queryValueToArray(req.query.status as string | string[]);
+    const season = queryValueToArray(req.query.season as string | string[]);
+
+    if (category?.some((element) => !isInEnum(element, Category))) {
+      throw new BadRequestError('category 항목이 유효하지 않습니다.');
+    }
+    if (status?.some((element) => !isInEnum(element, Status))) {
+      throw new BadRequestError('status 항목이 유효하지 않습니다.');
+    }
+    if (season?.some((element) => !isInEnum(element, Season))) {
+      throw new BadRequestError('season 항목이 유효하지 않습니다.');
+    }
+
+    const searchClothesReq: SearchClothesReq = {
+      text,
+      category,
+      status,
+      season,
+    };
+
+    const clothes = await ClothesService.searchClothes(
+      user ? user.id : null,
+      searchClothesReq,
+    );
+
+    res.json(clothes);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getClothesList: RequestHandler = async (req, res, next) => {
+  try {
+    const userId = Number(req.params.userId);
+    const user = req.user as LoginUser;
+
+    const clothesList = await ClothesService.getClothesList(
+      userId,
+      user ? user.id : null,
+    );
+
+    res.json(clothesList);
+  } catch (error) {
+    next(error);
+  }
+};

@@ -15,6 +15,12 @@ export class BadRequestError extends CustomError {
   }
 }
 
+export class DuplicateValueError extends CustomError {
+  constructor(message: string | object) {
+    super(400, 'DuplicateValueError', message);
+  }
+}
+
 export class UnauthorizedError extends CustomError {
   constructor(message: string | object) {
     super(401, 'UnauthorizedError', message);
